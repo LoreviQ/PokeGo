@@ -13,8 +13,38 @@ type cliCommand struct {
 	callback    func() error
 }
 
+func (c *cliCommand) log() error {
+	blankSpace := strings.Repeat(" ", 9-len(c.name))
+	_, ok := fmt.Printf("%s%s- %s\n", c.name, blankSpace, c.description)
+	return ok
+}
+
+func callHelp() error {
+	fmt.Print("Welcome to PokéGo!\n\nThe available commands are:\n")
+	for _, c := range getCliCommands() {
+		c.log()
+	}
+	return nil
+}
+
+func callExit() error {
+	fmt.Print("Thank you for using PokéGO!\n")
+	os.Exit(0)
+	return nil
+}
+
 func getCommand(word string) (cliCommand, error) {
-	commands := map[string]cliCommand{
+	command, ok := getCliCommands()[word]
+	if ok {
+		return command, nil
+	} else {
+		var zeroVal cliCommand
+		return zeroVal, fmt.Errorf("%s is an invalid command", word)
+	}
+}
+
+func getCliCommands() map[string]cliCommand {
+	return map[string]cliCommand{
 		"help": {
 			name:        "help",
 			description: "Displays a help message",
@@ -26,30 +56,13 @@ func getCommand(word string) (cliCommand, error) {
 			callback:    callExit,
 		},
 	}
-	command, ok := commands[word]
-	if ok {
-		return command, nil
-	} else {
-		var zeroVal cliCommand
-		return zeroVal, fmt.Errorf("%s is an invalid command", word)
-	}
-}
-
-func callHelp() error {
-	_, ok := fmt.Println("Help was Called")
-	return ok
-}
-
-func callExit() error {
-	_, ok := fmt.Println("Exit was Called")
-	return ok
 }
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		fmt.Print("-> ")
+		fmt.Print("PokéGO > ")
 		input, err := reader.ReadString('\n')
 		if err != nil {
 			fmt.Println(err)
