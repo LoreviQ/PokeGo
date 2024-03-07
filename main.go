@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/LoreviQ/PokeGo/pokeAPI"
+	"github.com/LoreviQ/PokeGo/internal/pokeAPI"
 )
 
 func main() {

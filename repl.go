@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/LoreviQ/PokeGo/pokeAPI"
+	"github.com/LoreviQ/PokeGo/internal/pokeAPI"
 )
 
 type cliCommand struct {
