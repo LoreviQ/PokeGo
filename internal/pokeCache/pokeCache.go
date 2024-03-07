@@ -18,8 +18,10 @@ type cacheEntry struct {
 }
 
 func NewCache(interval time.Duration) Cache {
-	var cache Cache
-	return cache
+	return Cache{
+		cache: make(map[string]cacheEntry),
+		mu:    &sync.Mutex{},
+	}
 }
 
 func (c *Cache) Add(key string, val []byte) error {
