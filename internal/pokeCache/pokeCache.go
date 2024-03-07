@@ -8,7 +8,7 @@ import (
 
 type Cache struct {
 	cache map[string]cacheEntry
-	mu    *sync.Mutex
+	mu    *sync.RWMutex
 }
 
 type cacheEntry struct {
@@ -19,11 +19,13 @@ type cacheEntry struct {
 func NewCache(interval time.Duration) Cache {
 	return Cache{
 		cache: make(map[string]cacheEntry),
-		mu:    &sync.Mutex{},
+		mu:    &sync.RWMutex{},
 	}
 }
 
 func (c *Cache) Add(key string, val []byte) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	_, ok := c.cache[key]
 	if ok {
 		return errors.New("cache already has entry at this key")
@@ -36,6 +38,8 @@ func (c *Cache) Add(key string, val []byte) error {
 }
 
 func (c *Cache) Get(key string) ([]byte, error) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	entry, ok := c.cache[key]
 	if !ok {
 		return nil, errors.New("cache does not have an entry at this key")
