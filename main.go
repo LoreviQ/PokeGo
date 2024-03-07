@@ -58,23 +58,23 @@ func getCliCommands() map[string]cliCommand {
 	}
 }
 
+func logErr(err error) {
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
 		fmt.Print("PokéGO > ")
 		input, err := reader.ReadString('\n')
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		logErr(err)
 		input = strings.Replace(input, "\n", "", -1)
 		words := strings.Split(input, " ")
 		command, err := getCommand(words[0])
-		if err == nil {
-			command.callback()
-		} else {
-			fmt.Println(err)
-		}
+		logErr(err)
+		command.callback()
 	}
 }
