@@ -2,6 +2,7 @@ package pokeCache
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -17,10 +18,12 @@ type cacheEntry struct {
 }
 
 func NewCache(interval time.Duration) Cache {
-	return Cache{
+	c := Cache{
 		cache: make(map[string]cacheEntry),
 		mu:    &sync.RWMutex{},
 	}
+	go c.reapLoop(interval)
+	return c
 }
 
 func (c *Cache) Add(key string, val []byte) error {
@@ -45,4 +48,18 @@ func (c *Cache) Get(key string) ([]byte, error) {
 		return nil, errors.New("cache does not have an entry at this key")
 	}
 	return entry.val, nil
+}
+
+func (c *Cache) reapLoop(interval time.Duration) {
+	ticker := time.NewTicker(interval)
+	for range ticker.C {
+		c.mu.Lock()
+		for key, val := range c.cache {
+			if time.Since(val.createdAt) >= interval {
+				delete(c.cache, key)
+				fmt.Printf("Removed - %s\n", key)
+			}
+		}
+		c.mu.Unlock()
+	}
 }
