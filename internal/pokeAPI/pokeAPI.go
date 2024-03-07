@@ -41,8 +41,12 @@ func NewClient(timeout, interval time.Duration) Client {
 
 func (c *Client) getEndpoint(Next, Previous string, args []string) (string, error) {
 	forward := true
-	if len(args) != 0 && (args[0] == "-back" || args[0] == "-b") {
-		forward = false
+	if len(args) != 0 {
+		if args[0] == "-back" || args[0] == "-b" {
+			forward = false
+		} else {
+			return "", fmt.Errorf("'%s' is an invalid arg", args[0])
+		}
 	}
 	var endpoint string
 	if forward {
@@ -61,7 +65,7 @@ func (c *Client) getEndpoint(Next, Previous string, args []string) (string, erro
 	return endpoint, nil
 }
 
-func (c *Client) getAPI(endpoint string) ([]byte, error) {
+func (c *Client) getFromAPI(endpoint string) ([]byte, error) {
 	res, err := http.Get(endpoint)
 	if err != nil {
 		return nil, err
@@ -95,7 +99,7 @@ func (c *Client) GetLocations(Next, Previous string, args []string) (APImapData,
 	}
 	body, err := c.cache.Get(endpoint)
 	if err != nil {
-		body, err = c.getAPI(endpoint)
+		body, err = c.getFromAPI(endpoint)
 		if err != nil {
 			return zeroVal, err
 		}

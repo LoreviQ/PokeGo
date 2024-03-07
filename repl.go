@@ -17,8 +17,8 @@ type cliCommand struct {
 
 func (c *cliCommand) log() error {
 	blankSpace := strings.Repeat(" ", 9-len(c.name))
-	_, ok := fmt.Printf("%s%s- %s\n", c.name, blankSpace, c.description)
-	return ok
+	_, err := fmt.Printf("%s%s- %s\n", c.name, blankSpace, c.description)
+	return err
 }
 
 type config struct {
