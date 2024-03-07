@@ -66,17 +66,25 @@ func (c *Client) getEndpoint(Next, Previous string, args []string) (string, erro
 }
 
 func (c *Client) getFromAPI(endpoint string) ([]byte, error) {
+	body, err := c.cache.Get(endpoint)
+	if err == nil {
+		return body, nil
+	}
 	res, err := http.Get(endpoint)
 	if err != nil {
 		return nil, err
 	}
-	body, err := io.ReadAll(res.Body)
+	body, err = io.ReadAll(res.Body)
 	res.Body.Close()
 	if res.StatusCode > 299 {
 		return nil, fmt.Errorf("response failed with status code: %d and\nbody: %s", res.StatusCode, body)
 	}
 	if err != nil {
 		return nil, err
+	}
+	err = c.cache.Add(endpoint, body)
+	if err != nil {
+		return body, err
 	}
 	return body, nil
 }
@@ -97,16 +105,9 @@ func (c *Client) GetLocations(Next, Previous string, args []string) (APImapData,
 	if err != nil {
 		return zeroVal, err
 	}
-	body, err := c.cache.Get(endpoint)
+	body, err := c.getFromAPI(endpoint)
 	if err != nil {
-		body, err = c.getFromAPI(endpoint)
-		if err != nil {
-			return zeroVal, err
-		}
-		err = c.cache.Add(endpoint, body)
-		if err != nil {
-			return zeroVal, err
-		}
+		return zeroVal, err
 	}
 	mapData, err := c.convertToStruct(body)
 	if err != nil {

@@ -27,7 +27,20 @@ func callMap(config *config, args ...string) error {
 	config.Next = mapData.Next
 	config.Previous = mapData.Previous
 	for _, location := range mapData.Results {
-		fmt.Printf("%s\n", location.Name)
+		fmt.Printf(" - Location - %s\n", location.Name)
 	}
 	return nil
 }
+
+/*
+func callExplore(config *config, args ...string) error {
+	if len(args) != 0 {
+		if args[0] == "-back" || args[0] == "-b" {
+			forward = false
+		} else {
+			return "", fmt.Errorf("'%s' is an invalid arg", args[0])
+		}
+	}
+	return nil
+}
+*/
