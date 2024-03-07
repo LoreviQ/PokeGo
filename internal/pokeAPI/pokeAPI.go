@@ -47,7 +47,7 @@ func (c *Client) getEndpoint(Next, Previous string, args []string) (string, erro
 	var endpoint string
 	if forward {
 		if Next == "" {
-			endpoint = "https://pokeapi.co/api/v2/location/"
+			endpoint = baseURL + "/location/?offset=0&limit=20"
 		} else {
 			endpoint = Next
 		}
