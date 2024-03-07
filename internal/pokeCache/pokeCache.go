@@ -2,6 +2,7 @@ package pokeCache
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -22,6 +23,7 @@ func NewCache(interval time.Duration) Cache {
 }
 
 func (c *Cache) Add(key string, val []byte) error {
+	fmt.Println("Adding to cache")
 	_, ok := c.cache[key]
 	if ok {
 		return errors.New("cache already has entry at this key")
@@ -34,6 +36,7 @@ func (c *Cache) Add(key string, val []byte) error {
 }
 
 func (c *Cache) Get(key string) ([]byte, error) {
+	fmt.Println("Reading from cache")
 	entry, ok := c.cache[key]
 	if !ok {
 		return nil, errors.New("cache does not have an entry at this key")

@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/LoreviQ/PokeGo/internal/pokeCache"
 )
 
 const (
@@ -15,6 +17,7 @@ const (
 
 type Client struct {
 	httpClient http.Client
+	cache      pokeCache.Cache
 }
 
 type APImapData struct {
@@ -27,11 +30,12 @@ type APImapData struct {
 	} `json:"results"`
 }
 
-func NewClient(timeout time.Duration) Client {
+func NewClient(timeout, interval time.Duration) Client {
 	return Client{
 		httpClient: http.Client{
 			Timeout: timeout,
 		},
+		cache: pokeCache.NewCache(interval),
 	}
 }
 
@@ -89,9 +93,16 @@ func (c *Client) GetLocations(Next, Previous string, args []string) (APImapData,
 	if err != nil {
 		return zeroVal, err
 	}
-	body, err := c.getAPI(endpoint)
+	body, err := c.cache.Get(endpoint)
 	if err != nil {
-		return zeroVal, err
+		body, err = c.getAPI(endpoint)
+		if err != nil {
+			return zeroVal, err
+		}
+		err = c.cache.Add(endpoint, body)
+		if err != nil {
+			return zeroVal, err
+		}
 	}
 	mapData, err := c.convertToStruct(body)
 	if err != nil {
