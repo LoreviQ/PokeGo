@@ -10,7 +10,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(args ...string) error
 }
 
 func (c *cliCommand) log() error {
@@ -49,24 +49,26 @@ func getCliCommands() map[string]cliCommand {
 	}
 }
 
-func logErr(err error) {
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
 		fmt.Print("PokéGO > ")
 		input, err := reader.ReadString('\n')
-		logErr(err)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
 		input = strings.Replace(input, "\n", "", -1)
 		words := strings.Split(input, " ")
 		command, err := getCommand(words[0])
-		logErr(err)
-		err = command.callback()
-		logErr(err)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		err = command.callback(words[1:]...)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }
