@@ -19,20 +19,6 @@ func (c *cliCommand) log() error {
 	return ok
 }
 
-func callHelp() error {
-	fmt.Print("Welcome to PokéGo!\n\nThe available commands are:\n")
-	for _, c := range getCliCommands() {
-		c.log()
-	}
-	return nil
-}
-
-func callExit() error {
-	fmt.Print("Thank you for using PokéGO!\n")
-	os.Exit(0)
-	return nil
-}
-
 func getCommand(word string) (cliCommand, error) {
 	command, ok := getCliCommands()[word]
 	if ok {
@@ -55,6 +41,11 @@ func getCliCommands() map[string]cliCommand {
 			description: "Exit the Pokedex",
 			callback:    callExit,
 		},
+		"map": {
+			name:        "map",
+			description: "Displays 20 locations",
+			callback:    callMap,
+		},
 	}
 }
 
@@ -75,6 +66,7 @@ func main() {
 		words := strings.Split(input, " ")
 		command, err := getCommand(words[0])
 		logErr(err)
-		command.callback()
+		err = command.callback()
+		logErr(err)
 	}
 }
