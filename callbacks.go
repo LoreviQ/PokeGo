@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 )
 
@@ -22,18 +20,14 @@ func callExit(args ...string) error {
 }
 
 func callMap(args ...string) error {
-	res, err := http.Get("https://pokeapi.co/api/v2/location/")
+	body, err := getAPI("https://pokeapi.co/api/v2/location/")
 	if err != nil {
 		return err
 	}
-	body, err := io.ReadAll(res.Body)
-	res.Body.Close()
-	if res.StatusCode > 299 {
-		return fmt.Errorf("response failed with status code: %d and\nbody: %s", res.StatusCode, body)
-	}
+	locations, err := convertToStruct(body)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%s\n", body)
+	fmt.Printf("\n\n json object:::: %v\n", locations)
 	return nil
 }
