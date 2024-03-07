@@ -6,13 +6,13 @@ import (
 	"os"
 	"strings"
 
-	"https://github.com/LoreviQ/PokeGo/pokeAPI"
+	"github.com/LoreviQ/PokeGo/pokeAPI"
 )
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(config config, args ...string) (config, error)
+	callback    func(config *config, args ...string) error
 }
 
 func (c *cliCommand) log() error {
@@ -27,7 +27,7 @@ type config struct {
 	Previous string
 }
 
-func startRepl(config config) {
+func startRepl(config *config) {
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		fmt.Print("PokéGO > ")
@@ -43,7 +43,7 @@ func startRepl(config config) {
 			fmt.Println(err)
 			continue
 		}
-		config, err = command.callback(config, words[1:]...)
+		err = command.callback(config, words[1:]...)
 		if err != nil {
 			fmt.Println(err)
 		}

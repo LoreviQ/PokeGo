@@ -5,29 +5,29 @@ import (
 	"os"
 )
 
-func callHelp(config config, args ...string) (config, error) {
+func callHelp(config *config, args ...string) error {
 	fmt.Print("Welcome to PokéGo!\n\nThe available commands are:\n")
 	for _, c := range getCliCommands() {
 		c.log()
 	}
-	return config, nil
+	return nil
 }
 
-func callExit(config config, args ...string) (config, error) {
+func callExit(config *config, args ...string) error {
 	fmt.Print("Thank you for using PokéGO!\n")
 	os.Exit(0)
-	return config, nil
+	return nil
 }
 
-func callMap(config config, args ...string) (config, error) {
+func callMap(config *config, args ...string) error {
 	mapData, err := config.Client.GetLocations(config.Next, config.Previous, args)
 	if err != nil {
-		return config, err
+		return err
 	}
 	config.Next = mapData.Next
 	config.Previous = mapData.Previous
 	for _, location := range mapData.Results {
 		fmt.Printf("%s\n", location.Name)
 	}
-	return config, nil
+	return nil
 }
