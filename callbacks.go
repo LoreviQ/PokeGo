@@ -5,29 +5,37 @@ import (
 	"os"
 )
 
-func callHelp(args ...string) error {
+func callHelp(config config, args ...string) (config, error) {
 	fmt.Print("Welcome to PokéGo!\n\nThe available commands are:\n")
 	for _, c := range getCliCommands() {
 		c.log()
 	}
-	return nil
+	return config, nil
 }
 
-func callExit(args ...string) error {
+func callExit(config config, args ...string) (config, error) {
 	fmt.Print("Thank you for using PokéGO!\n")
 	os.Exit(0)
-	return nil
+	return config, nil
 }
 
-func callMap(args ...string) error {
-	body, err := getAPI("https://pokeapi.co/api/v2/location/")
+func callMap(config config, args ...string) (config, error) {
+	endpoint, err := getEndpoint(config, args)
 	if err != nil {
-		return err
+		return config, err
 	}
-	locations, err := convertToStruct(body)
+	body, err := getAPI(endpoint)
 	if err != nil {
-		return err
+		return config, err
 	}
-	fmt.Printf("\n\n json object:::: %v\n", locations)
-	return nil
+	mapData, err := convertToStruct(body)
+	if err != nil {
+		return config, err
+	}
+	config.Next = mapData.Next
+	config.Previous = mapData.Previous
+	for _, location := range mapData.Results {
+		fmt.Printf("%s\n", location.Name)
+	}
+	return config, nil
 }

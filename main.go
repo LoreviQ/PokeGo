@@ -10,13 +10,18 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(args ...string) error
+	callback    func(config config, args ...string) (config, error)
 }
 
 func (c *cliCommand) log() error {
 	blankSpace := strings.Repeat(" ", 9-len(c.name))
 	_, ok := fmt.Printf("%s%s- %s\n", c.name, blankSpace, c.description)
 	return ok
+}
+
+type config struct {
+	Next     string
+	Previous string
 }
 
 func getCommand(word string) (cliCommand, error) {
@@ -43,7 +48,7 @@ func getCliCommands() map[string]cliCommand {
 		},
 		"map": {
 			name:        "map",
-			description: "Displays 20 locations",
+			description: "Displays 20 locations. Repeated calls call additional locations. '-b' or -'back' can be used to show the previous 20 locations",
 			callback:    callMap,
 		},
 	}
@@ -51,7 +56,7 @@ func getCliCommands() map[string]cliCommand {
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
-
+	var config config
 	for {
 		fmt.Print("PokéGO > ")
 		input, err := reader.ReadString('\n')
@@ -66,7 +71,7 @@ func main() {
 			fmt.Println(err)
 			continue
 		}
-		err = command.callback(words[1:]...)
+		config, err = command.callback(config, words[1:]...)
 		if err != nil {
 			fmt.Println(err)
 		}

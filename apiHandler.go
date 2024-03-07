@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -41,4 +42,26 @@ func convertToStruct(body []byte) (APImapData, error) {
 		return zeroVal, err
 	}
 	return JSON, nil
+}
+
+func getEndpoint(config config, args []string) (string, error) {
+	forward := true
+	if len(args) != 0 && (args[0] == "-back" || args[0] == "-b") {
+		forward = false
+	}
+	var endpoint string
+	if forward {
+		if config.Next == "" {
+			endpoint = "https://pokeapi.co/api/v2/location/"
+		} else {
+			endpoint = config.Next
+		}
+	} else {
+		if config.Previous == "" {
+			return "", errors.New("cannot go backwards from the start")
+		} else {
+			endpoint = config.Previous
+		}
+	}
+	return endpoint, nil
 }
