@@ -2,7 +2,6 @@ package pokeCache
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 	"time"
 )
@@ -57,7 +56,6 @@ func (c *Cache) reapLoop(interval time.Duration) {
 		for key, val := range c.cache {
 			if time.Since(val.createdAt) >= interval {
 				delete(c.cache, key)
-				fmt.Printf("Removed - %s\n", key)
 			}
 		}
 		c.mu.Unlock()
