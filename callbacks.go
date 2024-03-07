@@ -20,15 +20,7 @@ func callExit(config config, args ...string) (config, error) {
 }
 
 func callMap(config config, args ...string) (config, error) {
-	endpoint, err := getEndpoint(config, args)
-	if err != nil {
-		return config, err
-	}
-	body, err := getAPI(endpoint)
-	if err != nil {
-		return config, err
-	}
-	mapData, err := convertToStruct(body)
+	mapData, err := config.Client.GetLocations(config.Next, config.Previous, args)
 	if err != nil {
 		return config, err
 	}

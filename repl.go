@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"https://github.com/LoreviQ/PokeGo/pokeAPI"
 )
 
 type cliCommand struct {
@@ -20,6 +22,7 @@ func (c *cliCommand) log() error {
 }
 
 type config struct {
+	Client   pokeAPI.Client
 	Next     string
 	Previous string
 }

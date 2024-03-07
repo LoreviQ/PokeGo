@@ -1,4 +1,4 @@
-package main
+package pokeAPI
 
 import (
 	"encoding/json"
@@ -6,7 +6,16 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
+
+const (
+	baseURL = "https://pokeapi.co/api/v2"
+)
+
+type Client struct {
+	httpClient http.Client
+}
 
 type APImapData struct {
 	Count    int    `json:"count"`
@@ -18,29 +27,37 @@ type APImapData struct {
 	} `json:"results"`
 }
 
-func getEndpoint(config config, args []string) (string, error) {
+func NewClient(timeout time.Duration) Client {
+	return Client{
+		httpClient: http.Client{
+			Timeout: timeout,
+		},
+	}
+}
+
+func (c *Client) getEndpoint(Next, Previous string, args []string) (string, error) {
 	forward := true
 	if len(args) != 0 && (args[0] == "-back" || args[0] == "-b") {
 		forward = false
 	}
 	var endpoint string
 	if forward {
-		if config.Next == "" {
+		if Next == "" {
 			endpoint = "https://pokeapi.co/api/v2/location/"
 		} else {
-			endpoint = config.Next
+			endpoint = Next
 		}
 	} else {
-		if config.Previous == "" {
+		if Previous == "" {
 			return "", errors.New("cannot go backwards from the start")
 		} else {
-			endpoint = config.Previous
+			endpoint = Previous
 		}
 	}
 	return endpoint, nil
 }
 
-func getAPI(endpoint string) ([]byte, error) {
+func (c *Client) getAPI(endpoint string) ([]byte, error) {
 	res, err := http.Get(endpoint)
 	if err != nil {
 		return nil, err
@@ -56,7 +73,7 @@ func getAPI(endpoint string) ([]byte, error) {
 	return body, nil
 }
 
-func convertToStruct(body []byte) (APImapData, error) {
+func (c *Client) convertToStruct(body []byte) (APImapData, error) {
 	var JSON APImapData
 	err := json.Unmarshal([]byte(body), &JSON)
 	if err != nil {
@@ -64,4 +81,21 @@ func convertToStruct(body []byte) (APImapData, error) {
 		return zeroVal, err
 	}
 	return JSON, nil
+}
+
+func (c *Client) GetLocations(Next, Previous string, args []string) (APImapData, error) {
+	var zeroVal APImapData
+	endpoint, err := c.getEndpoint(Next, Previous, args)
+	if err != nil {
+		return zeroVal, err
+	}
+	body, err := c.getAPI(endpoint)
+	if err != nil {
+		return zeroVal, err
+	}
+	mapData, err := c.convertToStruct(body)
+	if err != nil {
+		return zeroVal, err
+	}
+	return mapData, nil
 }
