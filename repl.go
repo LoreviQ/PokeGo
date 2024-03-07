@@ -69,12 +69,12 @@ func getCliCommands() map[string]cliCommand {
 		},
 		"exit": {
 			name:        "exit",
-			description: "Exit the Pokedex",
+			description: "Exit PokéGO",
 			callback:    callExit,
 		},
 		"map": {
 			name:        "map",
-			description: "Displays 20 locations. Repeated calls call additional locations. '-b' or -'back' can be used to show the previous 20 locations",
+			description: "Displays 20 locations. Repeated uses displays additional locations. '-b' or -'back' can be used to show the previous 20 locations",
 			callback:    callMap,
 		},
 	}
