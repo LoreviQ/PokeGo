@@ -67,7 +67,7 @@ func callInspect(config *config, args ...string) error {
 		if len(config.Client.Pokedex) == 0 {
 			return errors.New("you haven't caught any pokemon")
 		}
-		for pokemon, _ := range config.Client.Pokedex {
+		for pokemon := range config.Client.Pokedex {
 			fmt.Printf(" - Has Caught - %s\n", pokemon)
 		}
 	} else {
