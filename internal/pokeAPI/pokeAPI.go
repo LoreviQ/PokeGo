@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand/v2"
 	"net/http"
 	"time"
 
@@ -18,6 +19,7 @@ const (
 type Client struct {
 	httpClient http.Client
 	cache      pokeCache.Cache
+	Pokedex    map[string]Pokemon
 }
 
 type APImapData struct {
@@ -45,12 +47,37 @@ type APIareaData struct {
 	} `json:"pokemon_encounters"`
 }
 
+type Pokemon struct {
+	Name   string `json:"name"`
+	Height int    `json:"height"`
+	Weight int    `json:"weight"`
+	Stats  []struct {
+		BaseStat int `json:"base_stat"`
+		Stat     struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"stat"`
+	} `json:"stats"`
+	Types []struct {
+		Type struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"type"`
+	} `json:"types"`
+}
+
+type species struct {
+	Name        string `json:"name"`
+	CaptureRate int    `json:"capture_rate"`
+}
+
 func NewClient(timeout, interval time.Duration) Client {
 	return Client{
 		httpClient: http.Client{
 			Timeout: timeout,
 		},
-		cache: pokeCache.NewCache(interval),
+		cache:   pokeCache.NewCache(interval),
+		Pokedex: map[string]Pokemon{},
 	}
 }
 
@@ -149,4 +176,33 @@ func (c *Client) ExploreArea(area string) (APIareaData, error) {
 		return zeroVal, err
 	}
 	return areaData, nil
+}
+
+func (c *Client) Catch(pokemon string) error {
+	var zeroVal species
+	endpoint := baseURL + "/pokemon-species/" + pokemon
+	pokemonSpecies, err := endpointToJSON(c, endpoint, zeroVal)
+	if err != nil {
+		return err
+	}
+	fmt.Println(pokemonSpecies.CaptureRate)
+	if rand.IntN(255) < pokemonSpecies.CaptureRate {
+		fmt.Print("Caught\n")
+		c.addToPokedex(pokemon)
+	} else {
+		fmt.Print("Failed to catch\n")
+	}
+	return nil
+}
+
+func (c *Client) addToPokedex(pokemon string) error {
+	var zeroVal Pokemon
+	endpoint := baseURL + "/pokemon/" + pokemon
+	pokemonData, err := endpointToJSON(c, endpoint, zeroVal)
+	if err != nil {
+		return err
+	}
+	c.Pokedex[pokemon] = pokemonData
+	fmt.Print("added to dex\n")
+	return nil
 }

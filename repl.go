@@ -79,8 +79,13 @@ func getCliCommands() map[string]cliCommand {
 		},
 		"explore": {
 			name:        "explore",
-			description: "TBA",
+			description: "Lists all Pokemon in an area. 'Area' must be supplied as the first arg",
 			callback:    callExplore,
+		},
+		"catch": {
+			name:        "catch",
+			description: "Attempts to catch a pokemon. 'Pokemon' name must be supplied as the first arg",
+			callback:    callCatch,
 		},
 	}
 }

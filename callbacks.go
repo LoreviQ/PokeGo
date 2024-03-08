@@ -53,3 +53,11 @@ func callExplore(config *config, args ...string) error {
 	}
 	return nil
 }
+
+func callCatch(config *config, args ...string) error {
+	if len(args) == 0 {
+		return errors.New("no pokemon supplied")
+	}
+	err := config.Client.Catch(args[0])
+	return err
+}
