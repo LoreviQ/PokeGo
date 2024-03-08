@@ -32,15 +32,8 @@ func callMap(config *config, args ...string) error {
 	return nil
 }
 
-/*
 func callExplore(config *config, args ...string) error {
-	if len(args) != 0 {
-		if args[0] == "-back" || args[0] == "-b" {
-			forward = false
-		} else {
-			return "", fmt.Errorf("'%s' is an invalid arg", args[0])
-		}
-	}
-	return nil
+	locationData, err := config.Client.ExploreLocation(args)
+	fmt.Println(locationData)
+	return err
 }
-*/

@@ -21,13 +21,19 @@ type Client struct {
 }
 
 type APImapData struct {
-	Count    int    `json:"count"`
 	Next     string `json:"next"`
 	Previous string `json:"previous"`
 	Results  []struct {
 		Name string `json:"name"`
 		URL  string `json:"url"`
 	} `json:"results"`
+}
+
+type APIlocationData struct {
+	Areas []struct {
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	} `json:"areas"`
 }
 
 func NewClient(timeout, interval time.Duration) Client {
@@ -39,7 +45,7 @@ func NewClient(timeout, interval time.Duration) Client {
 	}
 }
 
-func (c *Client) getEndpoint(Next, Previous string, args []string) (string, error) {
+func getEndpoint(Next, Previous string, args []string) (string, error) {
 	forward := true
 	if len(args) != 0 {
 		if args[0] == "-back" || args[0] == "-b" {
@@ -89,11 +95,11 @@ func (c *Client) getFromAPI(endpoint string) ([]byte, error) {
 	return body, nil
 }
 
-func (c *Client) convertToStruct(body []byte) (APImapData, error) {
-	var JSON APImapData
+func convertJsonToStruct[T any](body []byte, _ T) (T, error) {
+	var JSON T
 	err := json.Unmarshal([]byte(body), &JSON)
 	if err != nil {
-		var zeroVal APImapData
+		var zeroVal T
 		return zeroVal, err
 	}
 	return JSON, nil
@@ -101,7 +107,7 @@ func (c *Client) convertToStruct(body []byte) (APImapData, error) {
 
 func (c *Client) GetLocations(Next, Previous string, args []string) (APImapData, error) {
 	var zeroVal APImapData
-	endpoint, err := c.getEndpoint(Next, Previous, args)
+	endpoint, err := getEndpoint(Next, Previous, args)
 	if err != nil {
 		return zeroVal, err
 	}
@@ -109,9 +115,26 @@ func (c *Client) GetLocations(Next, Previous string, args []string) (APImapData,
 	if err != nil {
 		return zeroVal, err
 	}
-	mapData, err := c.convertToStruct(body)
+	mapData, err := convertJsonToStruct(body, zeroVal)
 	if err != nil {
 		return zeroVal, err
 	}
 	return mapData, nil
+}
+
+func (c *Client) ExploreLocation(args []string) (APIlocationData, error) {
+	var zeroVal APIlocationData
+	if len(args) == 0 {
+		return zeroVal, errors.New("no location supplied")
+	}
+	endpoint := baseURL + "/location/" + args[0]
+	body, err := c.getFromAPI(endpoint)
+	if err != nil {
+		return zeroVal, err
+	}
+	locationData, err := convertJsonToStruct(body, zeroVal)
+	if err != nil {
+		return zeroVal, err
+	}
+	return locationData, nil
 }

@@ -3,11 +3,9 @@ package pokeAPI
 import (
 	"fmt"
 	"testing"
-	"time"
 )
 
 func TestGetEndpoint(t *testing.T) {
-	client := NewClient(5*time.Second, time.Minute)
 	cases := []struct {
 		next     string
 		previous string
@@ -41,7 +39,7 @@ func TestGetEndpoint(t *testing.T) {
 	}
 	for i, c := range cases {
 		t.Run(fmt.Sprintf("Test Case %v", i), func(t *testing.T) {
-			actual, err := client.getEndpoint(c.next, c.previous, c.arg)
+			actual, err := getEndpoint(c.next, c.previous, c.arg)
 			if err != nil {
 				t.Errorf("Incorrectly raised error %v", err)
 			}
@@ -51,7 +49,7 @@ func TestGetEndpoint(t *testing.T) {
 		})
 	}
 	t.Run("Error Test Case", func(t *testing.T) {
-		_, err := client.getEndpoint("", "", []string{"-b"})
+		_, err := getEndpoint("", "", []string{"-b"})
 		if err == nil {
 			t.Errorf("Expected error to be raised")
 		}

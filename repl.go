@@ -77,5 +77,10 @@ func getCliCommands() map[string]cliCommand {
 			description: "Displays 20 locations. Repeated uses displays additional locations. '-b' or -'back' can be used to show the previous 20 locations",
 			callback:    callMap,
 		},
+		"explore": {
+			name:        "explore",
+			description: "TBA",
+			callback:    callExplore,
+		},
 	}
 }
