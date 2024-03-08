@@ -28,12 +28,17 @@ func callMap(config *config, args ...string) error {
 	config.Previous = mapData.Previous
 	for _, location := range mapData.Results {
 		fmt.Printf(" - Location - %s\n", location.Name)
+		locationData, err := config.Client.ExploreLocation(location.Name)
+		if err != nil {
+			return err
+		}
+		for _, area := range locationData.Areas {
+			fmt.Printf("     - Area - %s\n", area.Name)
+		}
 	}
 	return nil
 }
 
 func callExplore(config *config, args ...string) error {
-	locationData, err := config.Client.ExploreLocation(args)
-	fmt.Println(locationData)
-	return err
+	return nil
 }

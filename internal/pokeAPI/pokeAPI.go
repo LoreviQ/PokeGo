@@ -36,6 +36,15 @@ type APIlocationData struct {
 	} `json:"areas"`
 }
 
+type APIareaData struct {
+	PokemonEncounters []struct {
+		Pokemon struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"pokemon"`
+	} `json:"pokemon_encounters"`
+}
+
 func NewClient(timeout, interval time.Duration) Client {
 	return Client{
 		httpClient: http.Client{
@@ -122,12 +131,9 @@ func (c *Client) GetLocations(Next, Previous string, args []string) (APImapData,
 	return mapData, nil
 }
 
-func (c *Client) ExploreLocation(args []string) (APIlocationData, error) {
+func (c *Client) ExploreLocation(location string) (APIlocationData, error) {
 	var zeroVal APIlocationData
-	if len(args) == 0 {
-		return zeroVal, errors.New("no location supplied")
-	}
-	endpoint := baseURL + "/location/" + args[0]
+	endpoint := baseURL + "/location/" + location
 	body, err := c.getFromAPI(endpoint)
 	if err != nil {
 		return zeroVal, err
