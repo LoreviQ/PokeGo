@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
@@ -40,5 +41,15 @@ func callMap(config *config, args ...string) error {
 }
 
 func callExplore(config *config, args ...string) error {
+	if len(args) == 0 {
+		return errors.New("no area supplied")
+	}
+	areaData, err := config.Client.ExploreArea(args[0])
+	if err != nil {
+		return err
+	}
+	for _, encounter := range areaData.PokemonEncounters {
+		fmt.Printf(" - Found Pokemon - %s\n", encounter.Pokemon.Name)
+	}
 	return nil
 }

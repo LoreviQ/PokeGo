@@ -104,11 +104,15 @@ func (c *Client) getFromAPI(endpoint string) ([]byte, error) {
 	return body, nil
 }
 
-func convertJsonToStruct[T any](body []byte, _ T) (T, error) {
+func endpointToJSON[T any](c *Client, endpoint string, _ T) (T, error) {
+	var zeroVal T
 	var JSON T
-	err := json.Unmarshal([]byte(body), &JSON)
+	body, err := c.getFromAPI(endpoint)
 	if err != nil {
-		var zeroVal T
+		return zeroVal, err
+	}
+	err = json.Unmarshal([]byte(body), &JSON)
+	if err != nil {
 		return zeroVal, err
 	}
 	return JSON, nil
@@ -120,11 +124,7 @@ func (c *Client) GetLocations(Next, Previous string, args []string) (APImapData,
 	if err != nil {
 		return zeroVal, err
 	}
-	body, err := c.getFromAPI(endpoint)
-	if err != nil {
-		return zeroVal, err
-	}
-	mapData, err := convertJsonToStruct(body, zeroVal)
+	mapData, err := endpointToJSON(c, endpoint, zeroVal)
 	if err != nil {
 		return zeroVal, err
 	}
@@ -134,13 +134,19 @@ func (c *Client) GetLocations(Next, Previous string, args []string) (APImapData,
 func (c *Client) ExploreLocation(location string) (APIlocationData, error) {
 	var zeroVal APIlocationData
 	endpoint := baseURL + "/location/" + location
-	body, err := c.getFromAPI(endpoint)
-	if err != nil {
-		return zeroVal, err
-	}
-	locationData, err := convertJsonToStruct(body, zeroVal)
+	locationData, err := endpointToJSON(c, endpoint, zeroVal)
 	if err != nil {
 		return zeroVal, err
 	}
 	return locationData, nil
+}
+
+func (c *Client) ExploreArea(area string) (APIareaData, error) {
+	var zeroVal APIareaData
+	endpoint := baseURL + "/location-area/" + area
+	areaData, err := endpointToJSON(c, endpoint, zeroVal)
+	if err != nil {
+		return zeroVal, err
+	}
+	return areaData, nil
 }
