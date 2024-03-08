@@ -33,19 +33,19 @@ func startRepl(config *config) {
 		fmt.Print("PokéGO > ")
 		input, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("ERROR - %v\n", err)
 			continue
 		}
 		input = strings.Replace(input, "\n", "", -1)
 		words := strings.Split(input, " ")
 		command, err := getCommand(words[0])
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("ERROR - %v\n", err)
 			continue
 		}
 		err = command.callback(config, words[1:]...)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("ERROR - %v\n", err)
 		}
 	}
 }
@@ -86,6 +86,11 @@ func getCliCommands() map[string]cliCommand {
 			name:        "catch",
 			description: "Attempts to catch a pokemon. 'Pokemon' name must be supplied as the first arg",
 			callback:    callCatch,
+		},
+		"inspect": {
+			name:        "inspect",
+			description: "Lists caught pokemon. If a 'Pokemon' name is supplied as the first arg, lists data on that pokemon",
+			callback:    callInspect,
 		},
 	}
 }

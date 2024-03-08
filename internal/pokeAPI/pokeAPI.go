@@ -185,10 +185,12 @@ func (c *Client) Catch(pokemon string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(pokemonSpecies.CaptureRate)
 	if rand.IntN(255) < pokemonSpecies.CaptureRate {
-		fmt.Print("Caught\n")
-		c.addToPokedex(pokemon)
+		fmt.Print("Caught!\n")
+		_, ok := c.Pokedex[pokemon]
+		if !ok {
+			c.addToPokedex(pokemon)
+		}
 	} else {
 		fmt.Print("Failed to catch\n")
 	}
@@ -203,6 +205,6 @@ func (c *Client) addToPokedex(pokemon string) error {
 		return err
 	}
 	c.Pokedex[pokemon] = pokemonData
-	fmt.Print("added to dex\n")
+	fmt.Print("Added to dex\n")
 	return nil
 }
